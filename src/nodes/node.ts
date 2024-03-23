@@ -55,15 +55,20 @@ export async function node(
         }
         proposals.get(k)!.push(x);
         let proposal = proposals.get(k)!;
+        
         if (proposal.length >= (N - F)) {
           let count0 = proposal.filter((el) => el == 0).length;
           let count1 = proposal.filter((el) => el == 1).length;
+          
           if (count0 > (N / 2)) {
             x = 0;
+            
           } else if (count1 > (N / 2)) {
             x = 1;
+            
           } else {
             x = "?";
+            
           }
           for (let i = 0; i < N; i++) {
             sendMessage(`http://localhost:${BASE_NODE_PORT + i}/message`, { k: k, x: x, messageType: "vote" });
@@ -82,6 +87,7 @@ export async function node(
         }
         votes.get(k)!.push(x);
         let vote = votes.get(k)!;
+        
         if (vote.length >= (N - F)) {
           let count0 = vote.filter((el) => el == 0).length;
           let count1 = vote.filter((el) => el == 1).length;
@@ -89,15 +95,23 @@ export async function node(
           if (count0 >= F + 1) {
             currentNodeState.x = 0;
             currentNodeState.decided = true;
-          } else if (count1 >= F + 1) {
+          } 
+          
+          else if (count1 >= F + 1) {
             currentNodeState.x = 1;
             currentNodeState.decided = true;
-          } else {
+          }
+          
+          else {
             if (count0 + count1 > 0 && count0 > count1) {
               currentNodeState.x = 0;
-            } else if (count0 + count1 > 0 && count0 < count1) {
+            } 
+            
+            else if (count0 + count1 > 0 && count0 < count1) {
               currentNodeState.x = 1;
-            } else {
+            } 
+            
+            else {
               currentNodeState.x = Math.random() > 0.5 ? 0 : 1;
             }
             currentNodeState.k = k + 1;
@@ -128,10 +142,13 @@ export async function node(
     // if the node is not faulty, it starts the consensus algorithm
     if (!isFaulty) {
       currentNodeState = { k: 1, x: initialValue, decided: false, killed: currentNodeState.killed };
+      
       for (let i = 0; i < N; i++) {
         sendMessage(`http://localhost:${BASE_NODE_PORT + i}/message`, { k: currentNodeState.k, x: currentNodeState.x, messageType: "propose" });
       }
-    } else {
+    } 
+    
+    else {
       currentNodeState = { k: null, x: null, decided: null, killed: currentNodeState.killed };
     }
 
@@ -208,6 +225,7 @@ function sendMessage(url: string, body: any) {
     res.on('end', () => {
       try {
         const contentType = res.headers['content-type'];
+        
         if (contentType && contentType.includes('application/json')) {
           const jsonData = JSON.parse(data);
         }
