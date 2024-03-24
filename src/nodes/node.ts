@@ -7,7 +7,6 @@ import { delay } from "../utils";
 
 
 
-
 export async function node(
   nodeId: number, // the ID of the node
   N: number, // total number of nodes in the network
@@ -16,9 +15,7 @@ export async function node(
   isFaulty: boolean, // true if the node is faulty, false otherwise
   nodesAreReady: () => boolean, // used to know if all nodes are ready to receive requests
   setNodeIsReady: (index: number) => void // this should be called when the node is started and ready to receive requests
-) 
-
-{
+) {
   const node = express();
   node.use(express.json());
   node.use(bodyParser.json());
@@ -69,7 +66,9 @@ export async function node(
 
       if (step === 1 && !state.decided && !state.killed) 
       {
-        if (!messagesStep1.has(k)) {
+        if (!messagesStep1.has(k)) 
+        
+        {
           messagesStep1.set(k, []);
         }
 
@@ -79,7 +78,7 @@ export async function node(
         
         {
           state.x = Step1(messagesStep1.get(k)!, state, N);
-          sendMessageToAll(2, state, N);
+          sendMessagesToAll(2, state, N);
         }
       }
 
@@ -98,7 +97,7 @@ export async function node(
         {
           Step2(messagesStep2.get(k)!, state, F);
           state.k = state.k! + 1;
-          sendMessageToAll(1, state, N);
+          sendMessagesToAll(1, state, N);
         }
       }
     }
@@ -111,7 +110,8 @@ export async function node(
   //DONE:Working
   // this route is used to start the consensus algorithm
   node.get("/start", async (req, res) => {
-    while (!nodesAreReady()) {
+    while (!nodesAreReady()) 
+    {
       await delay(10);
     }
 
@@ -119,7 +119,7 @@ export async function node(
     
     {
       state.k = 1;
-      sendMessageToAll(1, state, N);
+      sendMessagesToAll(1, state, N);
     }
     return res.status(200).send("success");
   });
@@ -133,7 +133,9 @@ export async function node(
 
   //DONE:Working
   // this route is used to stop the consensus algorithm
-  node.get("/stop", async (req, res) => {
+  node.get("/stop", async (req, res) => 
+  {
+
     state.killed = true;
     res.status(200).send("killed");
   });
@@ -189,10 +191,14 @@ export async function node(
 
 
 // this function is used to decide the value of the node
-function Step1(messages: Value[], state: NodeState, N: number) {
+function Step1(messages: Value[], state: NodeState, N: number) 
+{
+
   let count0 = messages.filter((el) => el === 0).length;
   let count1 = messages.filter((el) => el === 1).length;
-  if (2 * count0 > N) {
+
+  if (2 * count0 > N) 
+  {
     state.x = 0;
   }
 
@@ -212,7 +218,10 @@ function Step1(messages: Value[], state: NodeState, N: number) {
 
 
 // this function is used to decide the value of the node after step 1
-function Step2(messsages: Value[], state: NodeState, F: number) {
+function Step2(messsages: Value[], state: NodeState, F: number) 
+{
+
+
   let count0 = messsages.filter((el) => el === 0).length;
   let count1 = messsages.filter((el) => el === 1).length;
 
@@ -248,19 +257,24 @@ function Step2(messsages: Value[], state: NodeState, F: number) {
 
 
 // send a message to all nodes
-function sendMessageToAll(step: number, state: NodeState, N: number) {
+function sendMessagesToAll(step: number, state: NodeState, N: number) 
+
+{
   for (let i = 0; i < N; i++) 
   
   {
-    sendMessage(i, step, state);
+    sendMessages(i, step, state);
   }
 }
 
 // we needed this function to send messages to other nodes
-function sendMessage(destinationNodeId: number, step: number, state: NodeState) {
-  fetch(`http://localhost:${BASE_NODE_PORT + destinationNodeId}/message`, {
+function sendMessages(destinationNodeId: number, step: number, state: NodeState) {
+  fetch(`http://localhost:${BASE_NODE_PORT + destinationNodeId}/message`, 
+  
+  {
     method: 'POST',
-    headers: {
+    headers: 
+    {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ x: state.x, k: state.k, step: step }),
